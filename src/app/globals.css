@@ -1,0 +1,415 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-inter: "Inter", system-ui, -apple-system, sans-serif;
+    --paper-bg: #FAF8F5;
+    --ink-color: #0F172A;
+  }
+
+  .dark {
+    --paper-bg: #12161A;
+    --ink-color: #F1F5F9;
+  }
+
+  body {
+    background-color: #FAF8F5;
+    color: #0F172A;
+    font-family: var(--font-inter);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .dark body {
+    background-color: #12161A;
+    color: #F1F5F9;
+  }
+
+  /* Accessible focus indicators across interactive elements */
+  *:focus-visible {
+    outline: 2px solid #2D6A4F;
+    outline-offset: 2px;
+  }
+
+  .dark *:focus-visible {
+    outline: 2px solid #52B788;
+  }
+}
+
+/* Indian Ledger and Document Accents */
+.ledger-hairline {
+  background-image: linear-gradient(to right, #DDD5C7 50%, rgba(255, 255, 255, 0) 0%);
+  background-position: bottom;
+  background-size: 8px 1px;
+  background-repeat: repeat-x;
+}
+
+.ledger-double-rule {
+  border-bottom: 3px double #DDD5C7;
+}
+
+.document-stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.55rem;
+  border-radius: 2px;
+  border: 1px dashed;
+}
+
+.document-stamp-verified {
+  border-color: #2D6A4F;
+  color: #1B4332;
+  background-color: #F0F7F4;
+}
+
+.document-stamp-assumption {
+  border-color: #C85A32;
+  color: #A84522;
+  background-color: #FDF6F2;
+}
+
+.document-stamp-demo {
+  border-color: #D97706;
+  color: #92400E;
+  background-color: #FEF9EE;
+}
+
+/* Subtle Indian Jaali geometric background watermark (pure SVG) */
+.jaali-watermark {
+  background-image: radial-gradient(#DDD5C7 0.75px, transparent 0.75px);
+  background-size: 16px 16px;
+}
+
+/* Custom styled paper scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #F4EFEA;
+}
+::-webkit-scrollbar-thumb {
+  background: #C2B6A3;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #A89C8A;
+}
+
+/* Markdown rendered deliverable styling */
+.prose-brd {
+  color: #1E293B;
+  font-size: 0.9375rem;
+  line-height: 1.7;
+}
+
+.prose-brd h1 {
+  font-size: 1.625rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin-top: 1.75rem;
+  margin-bottom: 0.875rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #EAE3D9;
+  letter-spacing: -0.02em;
+}
+
+.prose-brd h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1E293B;
+  margin-top: 2rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid #EAE3D9;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.prose-brd h3 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #2D6A4F;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose-brd p {
+  margin-bottom: 0.875rem;
+}
+
+.prose-brd ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 0.875rem;
+}
+
+.prose-brd ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-bottom: 0.875rem;
+}
+
+.prose-brd li {
+  margin-bottom: 0.35rem;
+}
+
+.prose-brd blockquote {
+  border-left: 3px solid #C85A32;
+  background-color: #FDF6F2;
+  padding: 0.75rem 1rem;
+  margin: 1.25rem 0;
+  border-radius: 0 0.375rem 0.375rem 0;
+  color: #863519;
+  font-style: normal;
+}
+
+.prose-brd table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.85rem;
+  background-color: #FFFFFF;
+  border-radius: 0.375rem;
+  overflow: hidden;
+  border: 1px solid #DDD5C7;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+}
+
+.prose-brd th {
+  background-color: #F4EFEA;
+  color: #0F172A;
+  font-weight: 700;
+  text-align: left;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 2px solid #DDD5C7;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.prose-brd td {
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid #EAE3D9;
+  vertical-align: top;
+}
+
+.prose-brd tr:last-child td {
+  border-bottom: none;
+}
+
+.prose-brd tr:nth-child(even) {
+  background-color: #FAF8F5;
+}
+
+.prose-brd code {
+  background-color: #F4EFEA;
+  color: #1B4332;
+  padding: 0.15rem 0.4rem;
+  border-radius: 0.25rem;
+  font-size: 0.8125rem;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 600;
+  border: 1px solid #EAE3D9;
+}
+
+.prose-brd hr {
+  border: 0;
+  border-top: 1px dashed #DDD5C7;
+  margin: 2rem 0;
+}
+
+/* Dark Mode Ledger & Document Elements */
+.dark .ledger-hairline {
+  background-image: linear-gradient(to right, #2D3748 50%, rgba(0, 0, 0, 0) 0%);
+}
+
+.dark .ledger-double-rule {
+  border-bottom: 3px double #2D3748;
+}
+
+.dark .document-stamp-verified {
+  border-color: #40916C;
+  color: #74C69D;
+  background-color: rgba(45, 106, 79, 0.2);
+}
+
+.dark .document-stamp-assumption {
+  border-color: #E28766;
+  color: #F6D2C3;
+  background-color: rgba(200, 90, 50, 0.2);
+}
+
+.dark .document-stamp-demo {
+  border-color: #F5B738;
+  color: #FDF0D5;
+  background-color: rgba(217, 119, 6, 0.2);
+}
+
+.dark .jaali-watermark {
+  background-image: radial-gradient(#2D3748 0.75px, transparent 0.75px);
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #161B22;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #2D3748;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #3D4859;
+}
+
+/* Dark Mode Deliverable Prose */
+.dark .prose-brd {
+  color: #CBD5E1;
+}
+
+.dark .prose-brd h1 {
+  color: #F8FAFC;
+  border-bottom-color: #2D3748;
+}
+
+.dark .prose-brd h2 {
+  color: #F1F5F9;
+  border-bottom-color: #2D3748;
+}
+
+.dark .prose-brd h3 {
+  color: #74C69D;
+}
+
+.dark .prose-brd blockquote {
+  border-left-color: #E28766;
+  background-color: rgba(226, 135, 102, 0.12);
+  color: #F6D2C3;
+}
+
+.dark .prose-brd table {
+  background-color: #161B22;
+  border-color: #2D3748;
+}
+
+.dark .prose-brd th {
+  background-color: #1C222B;
+  color: #F1F5F9;
+  border-bottom-color: #2D3748;
+}
+
+.dark .prose-brd td {
+  border-bottom-color: #232C37;
+}
+
+.dark .prose-brd tr:nth-child(even) {
+  background-color: #12161A;
+}
+
+.dark .prose-brd code {
+  background-color: #1C222B;
+  color: #74C69D;
+  border-color: #2D3748;
+}
+
+.dark .prose-brd hr {
+  border-top-color: #2D3748;
+}
+
+/* Continuous Marquee Ticker */
+@keyframes marquee-scroll {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.marquee-container {
+  display: flex;
+  overflow: hidden;
+  user-select: none;
+  width: 100%;
+}
+
+.marquee-track {
+  display: flex;
+  flex-shrink: 0;
+  white-space: nowrap;
+  animation: marquee-scroll 45s linear infinite;
+  will-change: transform;
+}
+
+.marquee-container:hover .marquee-track {
+  animation-play-state: paused;
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none !important;
+  }
+
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* High-quality A4 executive print styling */
+@media print {
+  @page {
+    margin: 15mm 18mm;
+    size: A4 portrait;
+  }
+
+  body {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .brd-container {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: 100% !important;
+    background: transparent !important;
+  }
+
+  .prose-brd table {
+    page-break-inside: avoid;
+    border: 1px solid #999999;
+  }
+
+  .prose-brd h1,
+  .prose-brd h2,
+  .prose-brd h3 {
+    page-break-after: avoid;
+    color: #000000 !important;
+  }
+}

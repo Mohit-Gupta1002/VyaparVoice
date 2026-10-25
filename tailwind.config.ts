@@ -1,0 +1,95 @@
+import type { Config } from "tailwindcss";
+
+const config: Config = {
+  darkMode: "class",
+  content: [
+    "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        charcoal: {
+          50: "#2E3846",
+          100: "#252E3A",
+          200: "#1F2630",
+          300: "#1A2029",
+          700: "#2D3748",
+          750: "#232C37",
+          800: "#1C222B",
+          850: "#161B22",
+          900: "#12161A",
+          950: "#0C0F12",
+        },
+        forest: {
+          50: "#F0F7F4",
+          100: "#D8ECE2",
+          200: "#B5DBC7",
+          500: "#40916C",
+          600: "#2D6A4F",
+          700: "#1B4332",
+          800: "#143527",
+          900: "#081C15",
+        },
+        terracotta: {
+          50: "#FDF6F2",
+          100: "#FBEAE2",
+          200: "#F6D2C3",
+          400: "#E28766",
+          500: "#D96A43",
+          600: "#C85A32",
+          700: "#A84522",
+          800: "#863519",
+          900: "#5A210F",
+        },
+        marigold: {
+          50: "#FEF9EE",
+          100: "#FDF0D5",
+          200: "#FBE1AB",
+          400: "#F5B738",
+          500: "#D97706",
+          600: "#B45309",
+          700: "#92400E",
+          800: "#78350F",
+        },
+        warm: {
+          50: "#FAF8F5",
+          100: "#F4EFEA",
+          200: "#EAE3D9",
+          300: "#DDD5C7",
+          400: "#C2B6A3",
+          800: "#36322B",
+          900: "#1E1C19",
+        },
+        ink: {
+          50: "#F8FAFC",
+          100: "#F1F5F9",
+          200: "#E2E8F0",
+          400: "#94A3B8",
+          500: "#64748B",
+          600: "#475569",
+          700: "#334155",
+          800: "#1E293B",
+          900: "#0F172A",
+          950: "#090D16",
+        },
+      },
+      fontFamily: {
+        sans: ["var(--font-inter)", "system-ui", "-apple-system", "sans-serif"],
+        display: ["var(--font-outfit)", "var(--font-inter)", "system-ui", "sans-serif"],
+        mono: ["ui-monospace", "SFMono-Regular", "Menlo", "Monaco", "Consolas", "monospace"],
+      },
+      boxShadow: {
+        "2xs": "0 1px 2px 0 rgba(15, 23, 42, 0.03)",
+        xs: "0 1px 2px 0 rgba(15, 23, 42, 0.06)",
+        subtle: "0 2px 4px -1px rgba(15, 23, 42, 0.04), 0 4px 6px -1px rgba(15, 23, 42, 0.04)",
+        stamp: "inset 0 0 0 1px rgba(200, 90, 50, 0.3)",
+        ledger: "0 1px 0 0 #EAE3D9, 0 3px 0 0 #FAF8F5, 0 4px 0 0 #EAE3D9",
+      },
+    },
+  },
+  plugins: [],
+};
+
+export default config;
