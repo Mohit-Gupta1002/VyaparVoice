@@ -1,35 +1,55 @@
 # Dependencies
-node_modules
+node_modules/
 /.pnp
 .pnp.js
 .yarn/cache
 
-# Testing
-/coverage
+# Testing & Coverage
+/coverage/
+.coverage
+htmlcov/
+.pytest_cache/
 
-# Next.js build output
+# Next.js Build Output
 /.next/
 /out/
+/build/
 
-# Production
-/build
-
-# Misc
+# Misc & OS
 .DS_Store
 *.pem
 scratch/
+test_speech.wav
+demo_audio.wav
+*.wav
+*.mp3
+*.webm
+*.m4a
+*.ogg
+*.flac
+!samples/**
 
-# Local env files - NEVER COMMIT SECRETS
-.env*.local
+# Environment Variables - NEVER COMMIT SECRETS
 .env
+.env.*
 !.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
 
 # Vercel
 .vercel
 
-# TypeScript
+# TypeScript & Cache
 *.tsbuildinfo
 next-env.d.ts
-
-# Cache
 .eslintcache
+
+# Python / FastAPI Backend
+backend/venv/
+backend/.venv/
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
