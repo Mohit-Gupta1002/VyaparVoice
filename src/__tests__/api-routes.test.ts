@@ -4,6 +4,7 @@ import { GET as healthHandler } from "../app/api/health/route";
 import { POST as clarifyHandler } from "../app/api/clarify/route";
 import { POST as generateBrdHandler } from "../app/api/generate-brd/route";
 import { POST as transcribeHandler } from "../app/api/transcribe/route";
+import { saveProject, getSavedProjects } from "../lib/storage";
 
 describe("API Integration Test Suite", () => {
   const originalEnv = process.env;
@@ -155,6 +156,22 @@ describe("API Integration Test Suite", () => {
       expect(data.error).toContain("Unsupported audio format");
     });
 
+    it("returns 413 if audio file exceeds 25MB limit", async () => {
+      const formData = new FormData();
+      const largeBlob = new Blob([new Uint8Array(25 * 1024 * 1024 + 1024)], { type: "audio/wav" });
+      formData.append("file", largeBlob, "huge.wav");
+
+      const req = new NextRequest("http://localhost:3000/api/transcribe", {
+        method: "POST",
+        body: formData,
+      });
+
+      const res = await transcribeHandler(req);
+      expect(res.status).toBe(413);
+      const data = await res.json();
+      expect(data.error).toContain("exceeds maximum size limit of 25MB");
+    });
+
     it("returns deterministic demo transcription when in auto mode and no external services are configured", async () => {
       const formData = new FormData();
       const fakeAudio = new Blob(["fake audio stream bytes"], { type: "audio/wav" });
@@ -236,6 +253,165 @@ describe("API Integration Test Suite", () => {
       expect(res.status).toBe(401);
       const data = await res.json();
       expect(data.error).toContain("Sarvam AI API key is not configured");
+    });
+
+    it("routes to Sarvam provider when requested with API key and normalizes response", async () => {
+      process.env.SARVAM_API_KEY = "mock_valid_sarvam_key";
+
+      const mockSarvamSTTResponse = {
+        transcript: "Hindi spoken trade description for appointment system",
+        language_code: "hi-IN",
+        request_id: "sarvam_req_999",
+      };
+
+      const originalFetch = globalThis.fetch;
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => mockSarvamSTTResponse,
+      } as any);
+
+      try {
+        const formData = new FormData();
+        const fakeAudio = new Blob(["sample audio bytes"], { type: "audio/wav" });
+        formData.append("file", fakeAudio, "trade_audio.wav");
+        formData.append("provider", "sarvam");
+
+        const req = new NextRequest("http://localhost:3000/api/transcribe?provider=sarvam", {
+          method: "POST",
+          body: formData,
+        });
+
+        const res = await transcribeHandler(req);
+        expect(res.status).toBe(200);
+        const data = await res.json();
+        expect(data.transcript).toBe("Hindi spoken trade description for appointment system");
+        expect(data.language_code).toBe("hi-IN");
+        expect(data.provider).toBe("sarvam");
+        expect(data.isDemo).toBe(false);
+      } finally {
+        globalThis.fetch = originalFetch;
+      }
+    });
+
+    it("auto mode gracefully falls back to demo mode when Whisper backend is offline", async () => {
+      process.env.WHISPER_API_URL = "http://127.0.0.1:8000/api/speech/transcribe";
+
+      const originalFetch = globalThis.fetch;
+      // Simulate fetch failing (ECONNREFUSED / network error)
+      globalThis.fetch = vi.fn().mockRejectedValue(new Error("fetch failed: ECONNREFUSED"));
+      const consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+
+      try {
+        const formData = new FormData();
+        const fakeAudio = new Blob(["sample audio bytes"], { type: "audio/wav" });
+        formData.append("file", fakeAudio, "input.wav");
+
+        const req = new NextRequest("http://localhost:3000/api/transcribe", {
+          method: "POST",
+          body: formData,
+        });
+
+        const res = await transcribeHandler(req);
+        expect(res.status).toBe(200);
+        const data = await res.json();
+        expect(data.isDemo).toBe(true);
+        expect(data.provider).toBe("demo");
+        expect(data.transcript).toBeTruthy();
+        expect(consoleWarnSpy).toHaveBeenCalledWith(
+          expect.stringContaining("Auto-provider: Whisper service unavailable"),
+          expect.stringContaining("ECONNREFUSED")
+        );
+      } finally {
+        globalThis.fetch = originalFetch;
+        consoleWarnSpy.mockRestore();
+      }
+    });
+  });
+
+  // 5. Complete End-to-End Workflow & Pipeline Test
+  describe("End-to-End Audio-to-BRD Pipeline & Persistence", () => {
+    it("executes the full workflow: transcribe -> clarify -> generate BRD -> persist & load", async () => {
+      // Step A: Transcribe audio (Demo mode)
+      const formData = new FormData();
+      const fakeAudio = new Blob(["audio stream bytes"], { type: "audio/wav" });
+      formData.append("file", fakeAudio, "clinic_record.wav");
+
+      const transcribeReq = new NextRequest("http://localhost:3000/api/transcribe", {
+        method: "POST",
+        body: formData,
+      });
+
+      const transcribeRes = await transcribeHandler(transcribeReq);
+      expect(transcribeRes.status).toBe(200);
+      const transcribeData = await transcribeRes.json();
+      expect(transcribeData.transcript).toBeTruthy();
+
+      // Step B: Request Clarification Questions
+      const clarifyReq = new NextRequest("http://localhost:3000/api/clarify", {
+        method: "POST",
+        body: JSON.stringify({
+          ideaText: transcribeData.transcript,
+          languageCode: transcribeData.language_code || "en-IN",
+        }),
+      });
+
+      const clarifyRes = await clarifyHandler(clarifyReq);
+      expect(clarifyRes.status).toBe(200);
+      const clarifyData = await clarifyRes.json();
+      expect(clarifyData.questions.length).toBeGreaterThanOrEqual(4);
+
+      // Step C: Generate 12-Section BRD
+      const userClarifications = clarifyData.questions.map((q: any) => ({
+        id: q.id,
+        question: q.question,
+        assumptionOrAnswer: q.defaultAssumption,
+      }));
+
+      const brdReq = new NextRequest("http://localhost:3000/api/generate-brd", {
+        method: "POST",
+        body: JSON.stringify({
+          ideaText: transcribeData.transcript,
+          clarifications: userClarifications,
+          languageCode: "en-IN",
+        }),
+      });
+
+      const brdRes = await generateBrdHandler(brdReq);
+      expect(brdRes.status).toBe(200);
+      const brdData = await brdRes.json();
+      expect(brdData.brd).toBeDefined();
+      expect(brdData.brd.functionalRequirements.length).toBeGreaterThanOrEqual(5);
+      expect(brdData.brd.nonFunctionalRequirements.length).toBeGreaterThanOrEqual(4);
+      expect(brdData.brd.markdownContent).toBeTruthy();
+
+      // Step D: Persist into Browser LocalStorage
+      const mockStorageMap = new Map<string, string>();
+      const mockLocalStorage = {
+        getItem: (k: string) => mockStorageMap.get(k) ?? null,
+        setItem: (k: string, v: string) => mockStorageMap.set(k, v),
+        removeItem: (k: string) => mockStorageMap.delete(k),
+        clear: () => mockStorageMap.clear(),
+      };
+      (globalThis as any).window = { localStorage: mockLocalStorage };
+      (globalThis as any).localStorage = mockLocalStorage;
+
+      const saveResult = saveProject({
+        projectName: brdData.brd.metadata.projectName,
+        targetLanguage: "en-IN",
+        engine: "BhashaBRD",
+        isDemo: true,
+        ideaText: transcribeData.transcript,
+        brd: brdData.brd,
+      });
+
+      expect(saveResult.success).toBe(true);
+      expect(saveResult.project?.id).toBeTruthy();
+
+      // Step E: Verify retrieval from LocalStorage
+      const savedProjects = getSavedProjects();
+      expect(savedProjects.length).toBe(1);
+      expect(savedProjects[0].projectName).toBe(brdData.brd.metadata.projectName);
+      expect(savedProjects[0].brd.summary.executiveSummary).toBeTruthy();
     });
   });
 });

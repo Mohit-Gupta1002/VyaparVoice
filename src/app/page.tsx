@@ -23,7 +23,6 @@ import {
   AlertCircle,
   Loader2,
   CheckCircle2,
-  Sparkles,
   Users,
   Clock,
   Package,
@@ -31,7 +30,6 @@ import {
   Receipt,
   Rocket,
   ShieldCheck,
-  ChevronRight,
 } from "lucide-react";
 
 type InputMode = "text" | "record" | "upload";
@@ -178,7 +176,7 @@ export default function Home() {
   };
 
   // Step 2 -> Step 3: Generate the full BRD
-  const handleGenerateBrd = async (answers: Record<string, string>, useAllAssumptions: boolean) => {
+  const handleGenerateBrd = async (answers: Record<string, string>, _useAllAssumptions: boolean) => {
     setIsGeneratingBrd(true);
     setErrorMessage(null);
 

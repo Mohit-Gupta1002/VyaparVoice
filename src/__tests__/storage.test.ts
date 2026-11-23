@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   STORAGE_KEY,
   STORAGE_SCHEMA_VERSION,
@@ -133,12 +133,19 @@ describe("LocalStorage Persistence & Project History", () => {
   });
 
   it("handles malformed JSON gracefully without crashing", () => {
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockStorage.setItem(STORAGE_KEY, "{ not valid json :::");
     const projects = getSavedProjects();
     expect(projects).toEqual([]);
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Failed to read saved projects from localStorage"),
+      expect.any(SyntaxError)
+    );
+    consoleErrorSpy.mockRestore();
   });
 
   it("handles storage quota errors gracefully", () => {
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockStorage.shouldThrowOnSet = true;
     const brd = generateDemoBRD(DEFAULT_SAMPLE_IDEA);
     const saveResult = saveProject({
@@ -151,5 +158,24 @@ describe("LocalStorage Persistence & Project History", () => {
 
     expect(saveResult.success).toBe(false);
     expect(saveResult.error).toMatch(/quota exceeded/i);
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      expect.stringContaining("Storage error while saving project"),
+      expect.any(Error)
+    );
+    consoleErrorSpy.mockRestore();
+  });
+
+  it("clears all saved projects cleanly", () => {
+    const brd = generateDemoBRD(DEFAULT_SAMPLE_IDEA);
+    saveProject({
+      projectName: "Project to clear",
+      targetLanguage: "en-IN",
+      engine: "BhashaBRD",
+      isDemo: true,
+      brd,
+    });
+    expect(getSavedProjects().length).toBe(1);
+    clearAllProjects();
+    expect(getSavedProjects().length).toBe(0);
   });
 });

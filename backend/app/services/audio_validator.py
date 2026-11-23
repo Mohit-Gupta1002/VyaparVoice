@@ -1,6 +1,10 @@
 import os
 from fastapi import HTTPException, UploadFile, status
-from backend.app.config import get_settings
+
+try:
+    from backend.app.config import get_settings
+except ImportError:
+    from app.config import get_settings
 
 SUPPORTED_AUDIO_EXTENSIONS = {
     ".wav",

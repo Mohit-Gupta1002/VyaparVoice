@@ -14,7 +14,6 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("light");
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     // Check initial preference from localStorage or OS media query
@@ -40,7 +39,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     } catch {
       // LocalStorage access restricted
     }
-    setMounted(true);
 
     // Listen to OS system color-scheme changes if user hasn't explicitly set a preference
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");

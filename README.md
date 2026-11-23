@@ -469,10 +469,10 @@ Synthesizes the complete 12-section enterprise BRD.
 
 ## 📚 Engineering Documentation & Guides
 
-- 🚀 [Production Deployment Guide (Vercel & Render)](file:///docs/deployment.md)
-- 🎬 [Recruiter 30–45s Demo Recording Script](file:///docs/demo-script.md)
-- 📸 [Visual Verification Checklist & UI States](file:///docs/screenshots/README.md)
-- 📦 [Safe Synthetic Samples & Benchmarks](file:///samples/README.md)
+- 🚀 [Production Deployment Guide (Vercel & Render)](./docs/deployment.md)
+- 🎬 [Recruiter 30–45s Demo Recording Script](./docs/demo-script.md)
+- 📸 [Visual Verification Checklist & UI States](./docs/screenshots/README.md)
+- 📦 [Safe Synthetic Samples & Benchmarks](./samples/README.md)
 
 ---
 

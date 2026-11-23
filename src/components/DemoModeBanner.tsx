@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Info, ChevronDown, ChevronUp, Copy, Check, ExternalLink } from "lucide-react";
+import { ChevronDown, ChevronUp, Copy, Check, ExternalLink } from "lucide-react";
 
 interface DemoModeBannerProps {
   isDemo: boolean;
