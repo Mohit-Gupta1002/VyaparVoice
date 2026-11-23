@@ -1,0 +1,28 @@
+services:
+  # FastAPI Speech AI Backend Service
+  - type: web
+    name: vyaparvoice-whisper-backend
+    runtime: python
+    region: oregon
+    plan: starter
+    rootDir: backend
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.9
+      - key: FASTAPI_ENV
+        value: production
+      - key: FASTAPI_HOST
+        value: 0.0.0.0
+      - key: WHISPER_MODEL_SIZE
+        value: tiny
+      - key: WHISPER_DEVICE
+        value: cpu
+      - key: WHISPER_COMPUTE_TYPE
+        value: int8
+      - key: CORS_ORIGINS
+        sync: false
+      - key: SARVAM_API_KEY
+        sync: false
+    healthCheckPath: /api/speech/health

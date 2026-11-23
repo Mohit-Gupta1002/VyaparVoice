@@ -128,6 +128,7 @@ Analyze the following business idea carefully:
 """
 ${ideaText}
 """
+Target Language: ${languageCode}
 
 Identify the top 3 or 4 critical missing requirements, operational ambiguities, or scope decisions needed to produce an enterprise-grade Business Requirements Document (BRD).
 For each question, formulate a sound, realistic DEFAULT ASSUMPTION that can be used if the user chooses to proceed immediately.

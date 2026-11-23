@@ -3,6 +3,7 @@
 > **"Built for the way India does business."**  
 > Turn spoken Indic business ideas into production-ready, 12-section Business Requirements Documents (BRDs), actionable milestones, and engineering specifications.
 
+[![CI](https://github.com/Mohit-Gupta1002/VyaparVoice/actions/workflows/ci.yml/badge.svg)](https://github.com/Mohit-Gupta1002/VyaparVoice/actions/workflows/ci.yml)
 [![Next.js 15](https://img.shields.io/badge/Next.js-15.1.7-black?style=flat-square&logo=next.js)](https://nextjs.org/)
 [![React 19](https://img.shields.io/badge/React-19.0.0-blue?style=flat-square&logo=react)](https://react.dev/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=flat-square&logo=fastapi)](https://fastapi.tiangolo.com/)
@@ -10,7 +11,7 @@
 [![Sarvam AI](https://img.shields.io/badge/Sarvam_AI-Saaras_v4_&_105B-purple?style=flat-square)](https://sarvam.ai/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-blue?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=flat-square&logo=tailwind-css)](https://tailwindcss.com/)
-[![Tests](https://img.shields.io/badge/Tests-28%20Passed-brightgreen?style=flat-square)]()
+[![Tests](https://img.shields.io/badge/Tests-48%20Passed-brightgreen?style=flat-square)]()
 
 ---
 
@@ -131,12 +132,30 @@ flowchart TD
 - Uses local deterministic simulation to generate complete 12-section specifications.
 - Clearly displays a deterministic simulation banner; never misrepresents demo outputs as live AI generations.
 
+### 8. Browser-Local Project History & Persistence Engine
+- **Schema Version 1**: Auto-persists every generated and explored BRD into browser `localStorage`.
+- **Zero Cloud / Account Overhead**: Fully self-contained on client machine; requires no database credentials or accounts.
+- **Full Lifecycle Management**: Reopen any past plan in the interactive viewer, rename projects inline, or delete records.
+- **Resilience**: Safely handles corrupt JSON structures and warns gracefully on `QuotaExceededError`.
+- **Privacy Notice**: Explicit UI disclaimer informing users that storage is isolated to their current browser.
+
+### 9. Multi-Provider Speech Pipeline & Resilient Fallback
+- **Configurable Routing**: Select provider via `ASR_PROVIDER` (`auto`, `whisper`, `sarvam`, or `demo`) or request parameters.
+- **Provider Priority in Auto Mode**:
+  1. Local/Hosted `faster-whisper` endpoint (`WHISPER_API_URL`) with 45s timeout guard.
+  2. Cloud Indic STT via Sarvam AI `saaras:v4` if API key is present.
+  3. Deterministic Demo Mode fallback if microservices are unreachable or unconfigured.
+- **Zero Failure Guarantee**: Evaluators and recruiters can test the full voice-to-BRD pipeline with 100% reliability even if external APIs or microservices are offline.
+
 ---
 
 ## 📁 Repository Structure
 
 ```text
 vyaparvoice/
+├── .github/
+│   └── workflows/
+│       └── ci.yml                      # GitHub Actions: Node 20 (test/tsc/build) + Python 3.11 (pytest)
 ├── backend/                             # Python FastAPI Speech AI Research Backend
 │   ├── app/
 │   │   ├── __init__.py
@@ -155,7 +174,7 @@ vyaparvoice/
 │   │       ├── __init__.py
 │   │       ├── audio_validator.py      # Format, extension, and 25MB validation
 │   │       └── whisper_service.py      # Lazy faster-whisper loader & transcription
-│   ├── tests/                          # Pytest test suite (13 passing tests)
+│   ├── tests/                          # Pytest test suite (15 passing tests)
 │   │   ├── __init__.py
 │   │   ├── conftest.py                 # In-memory 16kHz PCM WAV generator & TestClient
 │   │   ├── test_health.py              # Health and Sarvam status tests
@@ -165,6 +184,11 @@ vyaparvoice/
 │   ├── requirements.txt                # Python package manifest
 │   ├── run.py                          # Development launcher (uvicorn)
 │   └── README.md                       # Backend-specific documentation
+├── docs/                               # Engineering documentation & guides
+│   ├── deployment.md                   # Vercel + Render production deployment guide
+│   ├── demo-script.md                  # 30–45s recruiter presentation script
+│   └── screenshots/
+│       └── README.md                   # 6-state UI verification checklist
 ├── samples/                            # Safe, synthetic sample deliverables
 │   ├── README.md                       # Overview and reproducibility disclosure
 │   ├── sample_brd_clinic_aarogyaqueue.md # Complete 12-section sample BRD
@@ -173,11 +197,11 @@ vyaparvoice/
 │   └── sample_transcription_hindi.json # Sample Hindi speech-to-text payload
 ├── src/                                # Next.js 15 Fullstack Application
 │   ├── app/
-│   │   ├── api/                        # Server-side Route Handlers (Sarvam / Demo Gateway)
+│   │   ├── api/                        # Server-side Route Handlers (Sarvam / Whisper / Demo Gateway)
 │   │   │   ├── clarify/route.ts        # Clarification questions endpoint
 │   │   │   ├── generate-brd/route.ts   # 12-section BRD generation endpoint
-│   │   │   ├── health/route.ts         # Gateway health check
-│   │   │   └── transcribe/route.ts     # Speech-to-text gateway
+│   │   │   ├── health/route.ts         # Gateway health check & provider configuration
+│   │   │   └── transcribe/route.ts     # Speech-to-text gateway (Whisper + Sarvam + Demo)
 │   │   ├── globals.css                 # Theme tokens, custom scrollbars, print styles
 │   │   ├── layout.tsx                  # Root layout, theme script, and metadata
 │   │   └── page.tsx                    # Main 3-step workflow state coordinator
@@ -190,16 +214,21 @@ vyaparvoice/
 │   │   ├── DemoModeBanner.tsx          # Offline simulation disclosure banner
 │   │   ├── Header.tsx                  # Brand header with engine tag & theme toggle
 │   │   ├── LanguageSelector.tsx        # Indic language dropdown
+│   │   ├── ProjectHistoryModal.tsx     # Browser localStorage project history modal
 │   │   ├── StepTracker.tsx             # 3-step workflow progress stepper
 │   │   └── ThemeProvider.tsx           # Light/dark mode context provider
 │   ├── lib/
 │   │   ├── constants.ts                # Supported languages and 6 scenario presets
 │   │   ├── demo-data.ts                # Deterministic simulation engine
 │   │   ├── sarvam.ts                   # Sarvam AI REST API client
+│   │   ├── storage.ts                  # LocalStorage persistence engine (Schema v1)
 │   │   ├── types.ts                    # TypeScript schemas for BRD & APIs
-│   │   └── utils.ts                    # Tailwind class merging & format helpers
-│   └── __tests__/                      # Vitest test suite (15 passing tests)
+│   │   ├── utils.ts                    # Tailwind class merging & format helpers
+│   │   └── whisper.ts                  # Client connector to FastAPI faster-whisper service
+│   └── __tests__/                      # Vitest test suite (33 passing tests)
+│       ├── api-routes.test.ts          # Transcribe, clarify, generate-brd, health API tests
 │       ├── brd-generation.test.ts      # 12-section validation and assumption tests
+│       ├── storage.test.ts             # LocalStorage persistence, renaming, deletion tests
 │       ├── theme-marquee.test.ts       # Theme and marquee integrity tests
 │       └── validation.test.ts          # Language, sanitization, and JSON parsing tests
 ├── .env.example                        # Frontend environment template
@@ -208,8 +237,11 @@ vyaparvoice/
 ├── package.json                        # Frontend dependency manifest
 ├── postcss.config.mjs                  # PostCSS plugins
 ├── pytest.ini                          # Pytest configuration
+├── render.yaml                         # Render Cloud Blueprint for FastAPI service
 ├── tailwind.config.ts                  # Extended Indian paper and charcoal palette
-└── tsconfig.json                       # Strict TypeScript configuration
+├── tsconfig.json                       # Strict TypeScript configuration
+├── vercel.json                         # Vercel deployment and security headers configuration
+└── vitest.config.ts                    # Vitest configuration with path aliases
 ```
 
 ---
@@ -226,7 +258,9 @@ vyaparvoice/
 | **Python Backend** | [FastAPI](https://fastapi.tiangolo.com/), [Uvicorn](https://www.uvicorn.org/), [Pydantic v2](https://docs.pydantic.dev/) |
 | **Local Speech ASR** | [faster-whisper](https://github.com/SYSTRAN/faster-whisper) (CTranslate2, `tiny` model, `int8` CPU quantization) |
 | **Cloud Speech & LLM** | [Sarvam AI REST APIs](https://docs.sarvam.ai/) (`saaras:v4` STT, `sarvam-105b` LLM) |
-| **Testing** | [Vitest 3](https://vitest.dev/) (Frontend: 15 tests), [Pytest 9](https://docs.pytest.org/) (Backend: 13 tests) |
+| **Persistence** | Browser `localStorage` (Schema v1, zero-cloud isolation, rename/delete/export) |
+| **Testing** | **48 Total Tests**: [Vitest 3](https://vitest.dev/) (33 tests) + [Pytest 9](https://docs.pytest.org/) (15 tests) |
+| **CI / CD** | GitHub Actions (`.github/workflows/ci.yml`), Vercel (`vercel.json`), Render (`render.yaml`) |
 
 ---
 
@@ -433,12 +467,21 @@ Synthesizes the complete 12-section enterprise BRD.
 
 ---
 
+## 📚 Engineering Documentation & Guides
+
+- 🚀 [Production Deployment Guide (Vercel & Render)](./docs/deployment.md)
+- 🎬 [Recruiter 30–45s Demo Recording Script](./docs/demo-script.md)
+- 📸 [Visual Verification Checklist & UI States](./docs/screenshots/README.md)
+- 📦 [Safe Synthetic Samples & Benchmarks](./samples/README.md)
+
+---
+
 ## ⚠️ Limitations & Technical Roadmap
 
 - **Model Quantization**: The local ASR engine currently runs `faster-whisper:tiny` with `int8` quantization on CPU. While fast (~1.5s latency), acoustic accuracy on heavy regional accents or noisy shop environments improves significantly with `small` or `base` models.
 - **Bilingual Code-Switching**: Grassroots Indian founders frequently mix languages (e.g., Hinglish, Tanglish). Sarvam Saaras v4 handles code-switching well; local Whisper models perform best when language codes are explicitly specified or when running larger checkpoints.
 - **Export Formats**: Currently supports Markdown (`.md`), Plain Text (`.txt`), and `@media print` PDF. Native Microsoft Word (`.docx`) export is planned for future phases.
-- **Dual-Server Orchestration**: Currently, the Next.js frontend and FastAPI backend run as independent processes. Future phases will introduce a single Docker Compose or unified entry point.
+- **Storage Scope**: Local persistence is scoped to the browser's `localStorage` (Schema v1). Cloud synchronization and team sharing are planned for future multi-tenant releases.
 
 ---
 
@@ -448,7 +491,9 @@ Synthesizes the complete 12-section enterprise BRD.
 - **Explicit Assumption Architecture**: Implemented the assumption guarantee engine ensuring unconfirmed requirements are transparently tagged rather than hallucinated as verified facts.
 - **Audio Pipeline Engineering**: Built real-time Web Audio API waveform visualization and multi-format audio upload validation (up to 25MB).
 - **FastAPI Speech Backend**: Implemented an independent Python FastAPI backend with lazy-loaded `faster-whisper` inference, automatic language detection, segment timestamps, and latency tracking.
-- **Resilience & Testing**: Built deterministic fallback simulation engines and comprehensive automated test suites (15 Vitest tests + 13 Pytest tests) ensuring 100% reproducible execution without external dependencies.
+- **Hybrid Speech Routing**: Integrated Next.js `/api/transcribe` with local faster-whisper (`WHISPER_API_URL`), Sarvam Saaras v4, and deterministic demo fallback.
+- **Client Persistence**: Engineered browser `localStorage` persistence engine (Schema v1) with project history modal, rename, delete, and quota protection.
+- **Resilience & Testing**: Built deterministic fallback simulation engines and comprehensive automated test suites (33 Vitest tests + 15 Pytest tests = 48 passing tests) ensuring 100% reproducible execution without external dependencies.
 - *(Note: No claims of custom ASR neural model training are made; this work represents speech API integration, local ASR deployment, and requirements workflow engineering).*
 
 ---

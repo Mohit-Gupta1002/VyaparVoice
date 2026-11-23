@@ -106,11 +106,25 @@ export interface StructuredBRD {
   markdownContent: string;
 }
 
+export type SpeechProvider = "auto" | "whisper" | "sarvam" | "demo";
+
 export interface TranscriptionResponse {
   transcript: string;
   language_code: string;
   request_id?: string;
   isDemo?: boolean;
+  provider?: SpeechProvider;
+  duration_seconds?: number;
+  processing_time_ms?: number;
+  model_used?: string;
+  segments?: Array<{
+    id: number;
+    start: number;
+    end: number;
+    text: string;
+    avg_logprob?: number;
+    no_speech_prob?: number;
+  }>;
 }
 
 export interface ClarificationResponse {
