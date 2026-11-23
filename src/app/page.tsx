@@ -9,9 +9,11 @@ import { AudioRecorder } from "@/components/AudioRecorder";
 import { AudioUploader } from "@/components/AudioUploader";
 import { ClarificationModal } from "@/components/ClarificationModal";
 import { BrdViewer } from "@/components/BrdViewer";
+import { ProjectHistoryModal } from "@/components/ProjectHistoryModal";
 import { SupportedLanguageCode, ClarificationQuestion, StructuredBRD } from "@/lib/types";
 import { DEFAULT_SAMPLE_IDEA, BUSINESS_PROBLEMS, BusinessProblemExample } from "@/lib/constants";
 import { generateDemoBRD } from "@/lib/demo-data";
+import { saveProject } from "@/lib/storage";
 import { BrandMarquee } from "@/components/BrandMarquee";
 import {
   Mic,
@@ -64,6 +66,7 @@ export default function Home() {
   // General error state
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [showConfigModal, setShowConfigModal] = useState<boolean>(false);
+  const [showHistoryModal, setShowHistoryModal] = useState<boolean>(false);
 
   const inputSectionRef = useRef<HTMLDivElement | null>(null);
 
@@ -107,6 +110,14 @@ export default function Home() {
     const sampleBrd = generateDemoBRD(DEFAULT_SAMPLE_IDEA);
     setGeneratedBrd(sampleBrd);
     setCurrentStep(3);
+    saveProject({
+      projectName: sampleBrd.metadata.projectName,
+      targetLanguage: sampleBrd.metadata.targetLanguage,
+      engine: sampleBrd.metadata.engine,
+      isDemo: true,
+      ideaText: DEFAULT_SAMPLE_IDEA,
+      brd: sampleBrd,
+    });
   };
 
   // Step 1 -> Step 2: Analyze idea and request clarifications
@@ -202,6 +213,14 @@ export default function Home() {
       if (data?.brd) {
         setGeneratedBrd(data.brd);
         setCurrentStep(3);
+        saveProject({
+          projectName: data.brd.metadata.projectName,
+          targetLanguage: selectedLanguage,
+          engine: data.brd.metadata.engine || "BhashaBRD",
+          isDemo: isDemo,
+          ideaText: ideaText.trim(),
+          brd: data.brd,
+        });
       } else {
         throw new Error("No structured BRD generated in response.");
       }
@@ -212,6 +231,16 @@ export default function Home() {
     } finally {
       setIsGeneratingBrd(false);
     }
+  };
+
+  // Load saved project from local history
+  const handleLoadSavedProject = (brd: StructuredBRD, loadedIdeaText?: string) => {
+    setGeneratedBrd(brd);
+    if (loadedIdeaText) {
+      setIdeaText(loadedIdeaText);
+    }
+    setSelectedLanguage((brd.metadata.targetLanguage as SupportedLanguageCode) || "en-IN");
+    setCurrentStep(3);
   };
 
   // Reset workflow
@@ -232,6 +261,7 @@ export default function Home() {
         onReset={handleReset}
         onOpenConfig={() => setShowConfigModal(true)}
         onExploreSample={handleExploreSampleBrd}
+        onOpenHistory={() => setShowHistoryModal(true)}
       />
 
       {/* Demo Mode Notice */}
@@ -606,6 +636,13 @@ export default function Home() {
           </div>
         </div>
       )}
+
+      {/* Project History Modal */}
+      <ProjectHistoryModal
+        isOpen={showHistoryModal}
+        onClose={() => setShowHistoryModal(false)}
+        onLoadProject={handleLoadSavedProject}
+      />
 
       {/* Footer */}
       <footer className="border-t border-warm-300 dark:border-charcoal-700 bg-white/70 dark:bg-charcoal-900/70 py-6 pb-20 sm:pb-20 text-center text-xs text-ink-600 dark:text-ink-400 no-print transition-colors">

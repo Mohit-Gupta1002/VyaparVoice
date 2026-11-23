@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { RefreshCw, FileText, ShieldCheck, Sun, Moon } from "lucide-react";
+import { RefreshCw, FileText, ShieldCheck, Sun, Moon, FolderOpen } from "lucide-react";
 import { useTheme } from "@/components/ThemeProvider";
 
 interface HeaderProps {
@@ -9,9 +9,16 @@ interface HeaderProps {
   onReset: () => void;
   onOpenConfig?: () => void;
   onExploreSample?: () => void;
+  onOpenHistory?: () => void;
 }
 
-export function Header({ isDemo, onReset, onOpenConfig, onExploreSample }: HeaderProps) {
+export function Header({
+  isDemo,
+  onReset,
+  onOpenConfig,
+  onExploreSample,
+  onOpenHistory,
+}: HeaderProps) {
   const { theme, toggleTheme } = useTheme();
 
   return (
@@ -54,6 +61,17 @@ export function Header({ isDemo, onReset, onOpenConfig, onExploreSample }: Heade
             >
               <FileText className="h-3.5 w-3.5 text-forest-700 dark:text-forest-400" />
               <span>Explore Sample BRD</span>
+            </button>
+          )}
+
+          {onOpenHistory && (
+            <button
+              onClick={onOpenHistory}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-warm-300 dark:border-charcoal-700 bg-white dark:bg-charcoal-800 text-xs font-semibold text-ink-800 dark:text-ink-200 hover:bg-warm-100 dark:hover:bg-charcoal-750 hover:border-warm-400 dark:hover:border-charcoal-600 transition"
+              title="Open saved projects and BRD history"
+            >
+              <FolderOpen className="h-3.5 w-3.5 text-forest-700 dark:text-forest-400" />
+              <span className="hidden sm:inline">Saved Projects</span>
             </button>
           )}
 
