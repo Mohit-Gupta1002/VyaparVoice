@@ -1,0 +1,34 @@
+{
+  "transcript": "I want to build an appointment and queue management system for a small clinic. Patients should book appointments, receive reminders, and see their estimated waiting time. Clinic staff should manage appointments and mark patients as arrived.",
+  "language_code": "en",
+  "language_probability": 0.985,
+  "duration_seconds": 12.4,
+  "processing_time_ms": 1420.5,
+  "segments": [
+    {
+      "id": 0,
+      "start": 0.0,
+      "end": 4.8,
+      "text": "I want to build an appointment and queue management system for a small clinic.",
+      "avg_logprob": -0.182,
+      "no_speech_prob": 0.015
+    },
+    {
+      "id": 1,
+      "start": 4.8,
+      "end": 8.9,
+      "text": "Patients should book appointments, receive reminders, and see their estimated waiting time.",
+      "avg_logprob": -0.145,
+      "no_speech_prob": 0.008
+    },
+    {
+      "id": 2,
+      "start": 8.9,
+      "end": 12.4,
+      "text": "Clinic staff should manage appointments and mark patients as arrived.",
+      "avg_logprob": -0.198,
+      "no_speech_prob": 0.012
+    }
+  ],
+  "model_used": "faster-whisper:tiny"
+}
